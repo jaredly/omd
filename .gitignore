@@ -16,3 +16,4 @@ _build/
 omd
 .DS_Store
 .depend
+node_modules

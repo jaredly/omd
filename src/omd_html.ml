@@ -36,9 +36,9 @@ let to_string html =
     List.iter
       (function
         | (a, Some v) ->
-          if not (String.contains v '\'') then
+          if (not (String.contains v '\'')) then
             pp " %s='%s'" a v
-          else not (String.contains v '"') then
+          else if (not (String.contains v '"')) then
             pp " %s=\"%s\"" a v
           else
             (
