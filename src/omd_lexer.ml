@@ -341,12 +341,12 @@ struct
   let sub arr ~pos ~len =
     if len < 0 || pos < 0 || pos + len > BA.Array1.dim arr
     then invalid_arg "Bigarray_input.sub";
-    let s = String.create len in
+    let s = Bytes.create len in
     begin
       for i = 0 to len - 1 do
         String.unsafe_set s i (BA.Array1.unsafe_get arr (i + pos))
       done;
-      s
+      Bytes.to_string s
     end
 end
 module Lex_bigarray = Lex(Bigarray_input)

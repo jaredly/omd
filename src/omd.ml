@@ -8,6 +8,13 @@
 include Omd_representation
 include Omd_backend
 
+module Representation = Omd_representation
+module Utils = Omd_utils
+module Backend = Omd_backend
+module Parser = Omd_parser
+module Lexer = Omd_lexer
+module Html = Omd_html
+
 let of_input lex ?extensions:e ?default_lang:d s =
   let module E = Omd_parser.Default_env(struct end) in
   let module Parser = Omd_parser.Make(

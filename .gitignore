@@ -17,3 +17,5 @@ omd
 .DS_Store
 .depend
 node_modules
+omd.install
+.vscode

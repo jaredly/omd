@@ -1,0 +1,7 @@
+(jbuild_version 1)
+
+(library
+ ((name Omd)
+  (public_name omd)
+  (flags (-w -40 -w +26))
+  (libraries (bigarray))))
