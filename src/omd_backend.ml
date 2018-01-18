@@ -205,7 +205,7 @@ let rec html_and_headers_of_md
           begin match rc#get_ref name with
             | Some(href, title) ->
               loop indent
-                (Url(htmlentities ~md:true href,
+                (Url(href,
                      [Text(text)],
                      htmlentities ~md:true title)
                  ::tl)
@@ -224,7 +224,7 @@ let rec html_and_headers_of_md
             | Some(src, title) ->
               loop indent
                 (Img(htmlentities ~md:true alt,
-                     htmlentities ~md:true src,
+                     src,
                      htmlentities ~md:true title)::tl)
             | None ->
               loop indent (fallback#to_t);
@@ -256,7 +256,7 @@ let rec html_and_headers_of_md
           loop indent tl
         | None ->
           Buffer.add_string b "<img src='";
-          Buffer.add_string b (htmlentities ~md:true src);
+          Buffer.add_string b (src);
           Buffer.add_string b "' alt='";
           Buffer.add_string b (htmlentities ~md:true alt);
           Buffer.add_string b "' ";
@@ -466,7 +466,7 @@ let rec html_and_headers_of_md
         | None ->
           let s = html_of_md ~override ~pindent ~nl2br ~cs:code_style s in
           Buffer.add_string b "<a href='";
-          Buffer.add_string b (htmlentities ~md:true href);
+          Buffer.add_string b (href);
           Buffer.add_string b "'";
           if title <> "" then
             begin

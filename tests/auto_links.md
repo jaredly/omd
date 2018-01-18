@@ -1,0 +1,2 @@
+Hello folks, check out my good friend https://google.com'awesome. It's a real swell website, but what about this http://some.site:8080/a/path.that$is/complex?with=queyr&params&3#and-hashes ?
+[Something](https://google.com?a&b)

@@ -2560,7 +2560,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             | [] ->
               if debug then
                 eprintf "(OMD) spaces[] l=(%S)\n%!" (L.string_of_tokens l);
-              assert(items = []); (* aïe... listes mal formées ?! *)
+              assert(items = []); (* aï¿½e... listes mal formï¿½es ?! *)
               list_items ~p [n+2] ((U,[n+2],rev_to_t new_item)::items) rest
             | i::_ ->
               if debug then eprintf "(OMD) spaces(%d::_) n=%d l=(%S)\n%!"
@@ -2629,7 +2629,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
             | [] ->
               if debug then eprintf "(OMD) spaces[] l=(%S)\n%!"
                   (L.string_of_tokens l);
-              assert(items = []); (* aïe... listes mal formées ?! *)
+              assert(items = []); (* aï¿½e... listes mal formï¿½es ?! *)
               list_items ~p [n+2] ((O,[n+2],rev_to_t new_item)::items) rest
             | i::_ ->
               if debug then eprintf "(OMD) spaces(%d::_) n=%d l=(%S)\n%!"
@@ -3263,7 +3263,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       in
       begin match read_url [] tl with
         | Some(url, new_tl) ->
-          let r = 
+          let r =
             match t with
             | Lessthans 0 -> Text "<" :: r
             | Lessthans n -> Text(String.make (n+1) '<') :: r
@@ -3274,6 +3274,36 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
           begin match maybe_extension extensions r previous lexemes with
             | None ->
               main_impl_rev ~html (Text(L.string_of_token t)::r) [t] tl
+            | Some(r, p, l) ->
+              main_impl_rev ~html r p l
+          end
+      end
+
+    (* automatic urls *)
+    | _, (Word("http"|"https"|"ftp"|"ftps"|"ssh"|"afp"|"imap") as w)
+         :: Colon::Slashs(n)::tl ->
+      (* "semi-automatic" URLs *)
+      let rec read_url accu = function
+        | ((Dot::(Newline|Newlines _|Space|Spaces _|Quote|Quotes _|Doublequote|Doublequotes _)::_) as tl)
+        | (((Newline|Newlines _|Space|Spaces _|Quote|Quotes _|Doublequote|Doublequotes _)::_) as tl) ->
+          let url =
+            (L.string_of_token w) ^ "://"
+            ^ (if n = 0 then "" else String.make (n-1) '/')
+            ^ L.string_of_tokens (List.rev accu)
+          in print_endline(url);
+          Some(url, tl)
+        | x::tl ->
+          read_url (x::accu) tl
+        | [] ->
+          None
+      in
+      begin match read_url [] tl with
+        | Some(url, new_tl) ->
+          main_impl_rev ~html (Url(url,[Text url],"")::r) [] new_tl
+        | None ->
+          begin match maybe_extension extensions r previous lexemes with
+            | None ->
+              main_impl_rev ~html r [] tl
             | Some(r, p, l) ->
               main_impl_rev ~html r p l
           end
@@ -3589,7 +3619,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                           attrs tagstatus tokens
                       | Some(b, tokens) ->
                         if debug then begin
-                          eprintf "(OMD) 3433 BHTML tagstatus=%S tokens=%S\n%!" 
+                          eprintf "(OMD) 3433 BHTML tagstatus=%S tokens=%S\n%!"
                             (T.string_of_tagstatus tagstatus)
                             (L.string_of_tokens tokens)
                         end;
@@ -4051,7 +4081,7 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
                         eprintf
                           "(OMD) 4192 Found a closing tag %s ts=%s \
                            tokens=%s\n%!"
-                          t 
+                          t
                           (T.string_of_tagstatus ts)
                           (L.string_of_tokens tokens);
                       match tagstatus with
