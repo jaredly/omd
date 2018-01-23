@@ -117,6 +117,9 @@ let remove_links : t -> t =
       | _ -> None
     )
 
+let startsWith string needle =
+  (String.length(needle) <= String.length(string)) && (String.sub string 0 (String.length needle)) = needle
+
 let rec html_and_headers_of_md
     ?(remove_header_links=false)
     ?(override=(fun (e:element) -> (None:string option)))
@@ -465,14 +468,18 @@ let rec html_and_headers_of_md
           loop indent tl
         | None ->
           let s = html_of_md ~override ~pindent ~nl2br ~cs:code_style s in
-          Buffer.add_string b "<a href='";
+          Buffer.add_string b "<a href=\"";
           Buffer.add_string b (href);
-          Buffer.add_string b "'";
+          Buffer.add_string b "\"";
           if title <> "" then
             begin
-              Buffer.add_string b " title='";
+              Buffer.add_string b " title=\"";
               Buffer.add_string b (htmlentities ~md:true title);
-              Buffer.add_string b "'";
+              Buffer.add_string b "\"";
+            end;
+          if startsWith href "http://" || startsWith href "https://" then
+            begin
+              Buffer.add_string b " target=\"_blank\"";
             end;
           Buffer.add_string b ">";
           Buffer.add_string b s;

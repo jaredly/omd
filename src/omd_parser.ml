@@ -3284,31 +3284,28 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
          :: Colon::Slashs(n)::tl ->
       (* "semi-automatic" URLs *)
       let rec read_url accu = function
+        | ([] as tl)
         | ((Dot::(Newline|Newlines _|Space|Spaces _|Quote|Quotes _|Doublequote|Doublequotes _)::_) as tl)
         | (((Newline|Newlines _|Space|Spaces _|Quote|Quotes _|Doublequote|Doublequotes _)::_) as tl) ->
           let url =
             (L.string_of_token w) ^ "://"
             ^ (if n = 0 then "" else String.make (n-1) '/')
-            ^ L.string_of_tokens (List.rev accu)
-          in print_endline(url);
-          Some(url, tl)
+            ^ L.string_of_tokens (List.rev accu) in
+          (* print_endline(url); *)
+          (url, tl)
         | x::tl ->
           read_url (x::accu) tl
-        | [] ->
-          None
       in
-      begin match read_url [] tl with
-        | Some(url, new_tl) ->
+      begin let (url, new_tl) = read_url [] tl in
           main_impl_rev ~html (Url(url,[Text url],"")::r) [] new_tl
-        | None ->
+        (* | None ->
           begin match maybe_extension extensions r previous lexemes with
             | None ->
-              main_impl_rev ~html r [] tl
+              main_impl_rev ~html r [] (w::Colon::Slashs(n)::tl)
             | Some(r, p, l) ->
               main_impl_rev ~html r p l
-          end
+          end *)
       end
-
 
     (* Word(w) *)
     | _, Word w::tl ->
