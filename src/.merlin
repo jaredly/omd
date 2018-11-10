@@ -1,4 +1,0 @@
-B ../_build/default/src
-FLG -open Omd__ -w -40 -w +26
-PKG bigarray
-PKG unix

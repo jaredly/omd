@@ -1,4 +1,6 @@
+_esy/
 _build/
+.merlin
 *.data
 *.log
 *.native
