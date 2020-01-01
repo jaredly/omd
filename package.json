@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@esy-ocaml/esy-installer": "^0.0.0",
-    "@opam/jbuilder": "*",
+    "@opam/dune": "*",
     "@opam/ocamlbuild": "*",
     "@opam/base-bigarray": "*"
   },

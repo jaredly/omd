@@ -9,11 +9,16 @@ let dir =
 let slurp filename =
   let file = open_in filename in
   let size = in_channel_length file in
-  let buf = String.create size in
+  let buf = Bytes.create size in
   begin
     really_input file buf 0 size;
     buf
   end
+
+let write filename content =
+  let file = open_out filename in
+  output_string file content;
+  close_out file
 
 let remove_blank s =
   let b = Buffer.create (String.length s) in
@@ -33,20 +38,21 @@ let process successes failures file =
   let expected = slurp html in
   let md, observed =
    try
-     let md = Omd.of_string (slurp file) in
+     let md = Omd.of_string (Bytes.to_string (slurp file)) in
      md, Omd.to_html md
    with e -> [], Printexc.to_string e
   in
   (* Make sure a round trip produces identical results *)
   let round_trip = Omd.of_string(Omd.to_markdown md) in
-  if expected <> observed && remove_blank expected <> remove_blank observed
+  if expected <> (Bytes.of_string observed) && remove_blank (Bytes.to_string expected) <> remove_blank observed
   then (
     eprintf "FAILURE: %s\n" file;
-    eprintf "  expected = %S\n" (expected);
+    eprintf "  expected = %S\n" (Bytes.to_string expected);
     eprintf "  observed = %S\n" (observed);
+    write html observed;
     incr failures
   )
-  else if Omd_representation.(
+  else if Omd.Representation.(
     loose_compare md round_trip <> 0
     && loose_compare (normalise_md md) (normalise_md round_trip) <> 0
   )
@@ -54,8 +60,8 @@ let process successes failures file =
     eprintf "FAILURE: %s\n" file;
     eprintf "  Omd.of_string(Omd.to_markdown md) <> md\n";
     eprintf "Expected =%S\n  Result =%S\n"
-      (Omd_backend.sexpr_of_md (Omd_representation.normalise_md md))
-      (Omd_backend.sexpr_of_md (Omd_representation.normalise_md round_trip));
+      (Omd.Backend.sexpr_of_md (Omd.Representation.normalise_md md))
+      (Omd.Backend.sexpr_of_md (Omd.Representation.normalise_md round_trip));
     incr failures
   )
   else (
