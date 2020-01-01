@@ -4,14 +4,14 @@ authors: [ "Philippe Wang <philippe.wang@gmail.com>" ]
 license: "ISC"
 homepage: "https://github.com/ocaml/omd"
 build: [
-  ["jbuilder" "build" "-p" name "-j" jobs]
+  ["dune" "build" "-p" name "-j" jobs]
 ]
 remove: [
   ["ocamlfind" "remove" "omd"]
 ]
 depends: [
   "base-bigarray"
-  "jbuilder" {build}
+  "dune" {build & >= "1.0"}
 ]
 tags: [
   "org:ocamllabs"

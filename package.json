@@ -2,11 +2,11 @@
   "name": "omd",
   "version": "1.0.0",
   "scripts": {
-    "test": "esy jbuilder exec test tests/auto_links.md"
+    "test": "esy dune exec test tests/auto_links.md"
   },
   "esy": {
     "build": [
-      ["jbuilder", "build"]
+      ["dune", "build", "-p", "#{self.name}"]
     ],
     "install": [
       "esy-installer"

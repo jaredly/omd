@@ -1,0 +1,4 @@
+(executable
+ (name Test)
+ (public_name Test)
+ (libraries omd))

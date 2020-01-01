@@ -120,6 +120,21 @@ let remove_links : t -> t =
 let startsWith string needle =
   (String.length(needle) <= String.length(string)) && (String.sub string 0 (String.length needle)) = needle
 
+let render_header n b id content =
+  Buffer.add_string b "<h";
+  Buffer.add_string b (string_of_int n);
+  Buffer.add_string b " id=\"";
+  Buffer.add_string b id;
+  Buffer.add_string b "\">";
+  Buffer.add_string b "<a href=\"#";
+  Buffer.add_string b id;
+  Buffer.add_string b "\">";
+  Buffer.add_string b content;
+  Buffer.add_string b "</a>";
+  Buffer.add_string b "</h";
+  Buffer.add_string b (string_of_int n);
+  Buffer.add_string b ">"
+
 let rec html_and_headers_of_md
     ?(remove_header_links=false)
     ?(override=(fun (e:element) -> (None:string option)))
@@ -501,11 +516,7 @@ let rec html_and_headers_of_md
           let ih = html_of_md ~override ~pindent ~nl2br ~cs:code_style md in
           let id = id_of_string ids (text_of_md md) in
           headers := (e, id, ih) :: !headers;
-          Buffer.add_string b "<h1 id=\"";
-          Buffer.add_string b id;
-          Buffer.add_string b "\">";
-          Buffer.add_string b ih;
-          Buffer.add_string b "</h1>";
+          render_header 1 b id ih;
           loop indent tl
       end
     | (H2 md as e) :: tl ->
@@ -523,11 +534,7 @@ let rec html_and_headers_of_md
           let ih = html_of_md ~override ~pindent ~nl2br ~cs:code_style md in
           let id = id_of_string ids (text_of_md md) in
           headers := (e, id, ih) :: !headers;
-          Buffer.add_string b "<h2 id=\"";
-          Buffer.add_string b id;
-          Buffer.add_string b "\">";
-          Buffer.add_string b ih;
-          Buffer.add_string b "</h2>";
+          render_header 2 b id ih;
           loop indent tl
       end
     | (H3 md as e) :: tl ->
@@ -545,11 +552,7 @@ let rec html_and_headers_of_md
           let ih = html_of_md ~override ~pindent ~nl2br ~cs:code_style md in
           let id = id_of_string ids (text_of_md md) in
           headers := (e, id, ih) :: !headers;
-          Buffer.add_string b "<h3 id=\"";
-          Buffer.add_string b id;
-          Buffer.add_string b "\">";
-          Buffer.add_string b ih;
-          Buffer.add_string b "</h3>";
+          render_header 3 b id ih;
           loop indent tl
       end
     | (H4 md as e) :: tl ->
@@ -567,11 +570,7 @@ let rec html_and_headers_of_md
           let ih = html_of_md ~override ~pindent ~nl2br ~cs:code_style md in
           let id = id_of_string ids (text_of_md md) in
           headers := (e, id, ih) :: !headers;
-          Buffer.add_string b "<h4 id=\"";
-          Buffer.add_string b id;
-          Buffer.add_string b "\">";
-          Buffer.add_string b ih;
-          Buffer.add_string b "</h4>";
+          render_header 4 b id ih;
           loop indent tl
       end
     | (H5 md as e) :: tl ->
@@ -589,11 +588,7 @@ let rec html_and_headers_of_md
           let ih = html_of_md ~override ~pindent ~nl2br ~cs:code_style md in
           let id = id_of_string ids (text_of_md md) in
           headers := (e, id, ih) :: !headers;
-          Buffer.add_string b "<h5 id=\"";
-          Buffer.add_string b id;
-          Buffer.add_string b "\">";
-          Buffer.add_string b ih;
-          Buffer.add_string b "</h5>";
+          render_header 5 b id ih;
           loop indent tl
       end
     | (H6 md as e) :: tl ->
@@ -611,11 +606,7 @@ let rec html_and_headers_of_md
           let ih = html_of_md ~override ~pindent ~nl2br ~cs:code_style md in
           let id = id_of_string ids (text_of_md md) in
           headers := (e, id, ih) :: !headers;
-          Buffer.add_string b "<h6 id=\"";
-          Buffer.add_string b id;
-          Buffer.add_string b "\">";
-          Buffer.add_string b ih;
-          Buffer.add_string b "</h6>";
+          render_header 6 b id ih;
           loop indent tl
       end
     | NL as e :: tl ->
