@@ -1,6 +1,2 @@
 
-**important**
-
-__important__
-
-really **freaking**strong
+this ~~is crossed out~~ folks
