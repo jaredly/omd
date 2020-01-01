@@ -54,6 +54,9 @@ let text_of_md md =
     | Bold md :: tl ->
         loop md;
         loop tl
+    | Strike md :: tl ->
+        loop md;
+        loop tl
     | (Ul l | Ol l) :: tl ->
         List.iter (fun item -> loop item; Buffer.add_char b '\n') l;
         loop tl
@@ -318,6 +321,17 @@ let rec html_and_headers_of_md
           Buffer.add_string b "<strong>";
           loop indent md;
           Buffer.add_string b "</strong>";
+          loop indent tl
+      end
+    | Strike md as e :: tl ->
+      begin match override e with
+        | Some s ->
+          Buffer.add_string b s;
+          loop indent tl
+        | None ->
+          Buffer.add_string b "<strike>";
+          loop indent md;
+          Buffer.add_string b "</strike>";
           loop indent tl
       end
     | (Ul l|Ol l|Ulp l|Olp l as e) :: tl ->
@@ -726,6 +740,11 @@ let rec sexpr_of_md md =
         loop md;
         Buffer.add_string b ")";
         loop tl
+    | Strike md :: tl ->
+        Buffer.add_string b "(Strike";
+        loop md;
+        Buffer.add_string b ")";
+        loop tl
     | Ol l :: tl ->
         bprintf b "(Ol";
         List.iter(fun li -> bprintf b "(Li "; loop li; bprintf b ")") l;
@@ -951,6 +970,11 @@ let rec markdown_of_md md =
       loop list_indent md;
       Buffer.add_string b "**";
       loop list_indent tl
+    | Strike md :: tl ->
+      Buffer.add_string b "~~";
+      loop list_indent md;
+      Buffer.add_string b "~~";
+      loop list_indent tl
     | Ol l :: tl ->
       if Buffer.length b > 0 && Buffer.nth b (Buffer.length b - 1) <> '\n' then
            Buffer.add_char b '\n';
@@ -1125,7 +1149,7 @@ let rec markdown_of_md md =
         | Paragraph p :: _ -> p <> []
         | (H1 _ | H2 _ | H3 _ | H4 _ | H5 _ | H6 _
           | Ul _ | Ol _ | Ulp _ | Olp _ | Code (_, _) | Code_block (_, _)
-          | Text _ | Emph _ | Bold _ | Br |Hr | Url (_, _, _)
+          | Text _ | Emph _ | Bold _ | Strike _ | Br |Hr | Url (_, _, _)
           | Ref (_, _, _, _) | Img_ref (_, _, _, _)
           | Html (_, _, _)
           | Blockquote _ | Img (_, _, _)) :: _ -> true

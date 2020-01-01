@@ -19,6 +19,7 @@ type element =
   | Text of string
   | Emph of t
   | Bold of t
+  | Strike of t
   | Ul of t list
   | Ol of t list
   | Ulp of t list

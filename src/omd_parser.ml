@@ -734,6 +734,8 @@ struct
                         :: clean_paragraphs tl
       | Bold v :: tl -> Bold(clean_paragraphs v)
                         :: clean_paragraphs tl
+      | Strike v :: tl -> Strike(clean_paragraphs v)
+                        :: clean_paragraphs tl
       | Ul v :: tl -> Ul(List.map clean_paragraphs v)
                       :: clean_paragraphs tl
       | Ol v :: tl -> Ol(List.map clean_paragraphs v)
@@ -937,6 +939,52 @@ struct
             | (Space|Spaces _ as x)::(Underscore|Underscores _ as s)::tl ->
               Continue_with([s;x],tl)
             | (Underscore|Underscores _ as s)::tl ->
+              if L.length s = n then
+                Split([],tl)
+              else
+                Continue
+            | _ -> Continue)
+        l
+    with
+    | None ->
+      None
+    | Some(left,right) ->
+      if is_blank left then None else Some(left,right)
+
+  let gh_strike (n:int) (l:l) =
+    assert_well_formed l;
+    (* FIXME: use rpl call/return convention *)
+    assert (n>0 && n<4);
+    match
+      fsplit
+        ~excl:(function Newlines _ :: _ -> true | _ -> false)
+        ~f:(function
+            | Backslash::Tilde::tl ->
+              Continue_with([Tilde;Backslash],tl)
+            | Backslash::Tildes 0::tl ->
+              Continue_with([Tilde;Backslash],Tilde::tl)
+            | Backslash::Tildes n::tl ->
+              Continue_with([Tilde;Backslash],Tildes(n-1)::tl)
+            | (Backslashs b as x)::Tilde::tl ->
+              if b mod 2 = 0 then
+                Continue_with([x],Tilde::tl)
+              else
+                Continue_with([Tilde;x],tl)
+            | (Backslashs b as x)::(Tildes 0 as s)::tl ->
+              if b mod 2 = 0 then
+                Continue_with([x],s::tl)
+              else
+                Continue_with([Tilde;x],Tilde::tl)
+            | (Backslashs b as x)::(Tildes n as s)::tl ->
+              if b mod 2 = 0 then
+                Continue_with([x],s::tl)
+              else
+                Continue_with([Tilde;x],Tildes(n-1)::tl)
+            | (Space|Spaces _ as x)::(Tilde|Tildes _ as s)::tl ->
+              Continue_with([s;x],tl)
+            | (Tilde|Tildes _ as s)::(Word _|Number _ as w):: tl ->
+              Continue_with([w;s],tl)
+            | (Tilde|Tildes _ as s)::tl ->
               if L.length s = n then
                 Split([],tl)
               else
@@ -3017,6 +3065,19 @@ let read_until_space ?(bq=false) ?(no_nl=false) l =
       let n = L.length t in
       let r, p, l = spaces_not_at_beginning_of_line ~html n r tl in
       main_impl_rev ~html r p l
+
+    (* tildes *)
+    | _, (Tildes((0|1) as n) as t) :: tl ->
+      (* 2 or 3 "orphan" underscores, or emph/bold *)
+      (match gh_strike (n+2) tl with
+       | None ->
+         begin match maybe_extension extensions r previous lexemes with
+           | None -> main_impl_rev ~html (Text(L.string_of_token t)::r) [t] tl
+           | Some(r, p, l) -> main_impl_rev ~html r p l
+         end
+       | Some(x, new_tl) ->
+           main_impl_rev ~html (Strike(main_impl ~html [] [t] x) :: r) [t] new_tl
+      )
 
     (* underscores *)
     | _, (Underscore as t) :: tl -> (* one "orphan" underscore, or emph *)

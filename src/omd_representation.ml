@@ -17,7 +17,7 @@ class ref_container : object
 
   method add_ref name title url =
     c <- R.add name (url, title) c;
-    let ln = String.lowercase (String.copy name) in
+    let ln = String.lowercase_ascii (String.copy name) in
     if ln <> name then c2 <- R.add ln (url, title) c2
 
   method get_ref name =
@@ -25,7 +25,7 @@ class ref_container : object
       let (url, title) as r =
         try R.find name c
         with Not_found ->
-          let ln = String.lowercase (String.copy name) in
+          let ln = String.lowercase_ascii (String.copy name) in
           try R.find ln c
           with Not_found ->
             R.find ln c2
@@ -45,6 +45,7 @@ type element =
   | Text of string
   | Emph of t
   | Bold of t
+  | Strike of t
   | Ul of t list
   | Ol of t list
   | Ulp of t list
@@ -306,6 +307,7 @@ let rec normalise_md l =
     | H6 v::tl -> H6(loop v)::loop tl
     | Emph v::tl -> Emph(loop v)::loop tl
     | Bold v::tl -> Bold(loop v)::loop tl
+    | Strike v::tl -> Strike(loop v)::loop tl
     | Ul v::tl -> Ul(List.map loop v)::loop tl
     | Ol v::tl -> Ol(List.map loop v)::loop tl
     | Ulp v::tl -> Ulp(List.map loop v)::loop tl
@@ -392,6 +394,11 @@ let rec visit f = function
     begin match f e with
       | Some(l) -> l@visit f tl
       | None -> Bold(visit f v)::visit f tl
+    end
+  | Strike v as e::tl -> 
+    begin match f e with
+      | Some(l) -> l@visit f tl
+      | None -> Strike(visit f v)::visit f tl
     end
   | Ul v as e::tl ->
     begin match f e with

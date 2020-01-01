@@ -67,6 +67,7 @@ let rec set_default_lang lang = function
                         :: set_default_lang lang tl
   | Emph t :: tl -> Emph(set_default_lang lang t) :: set_default_lang lang tl
   | Bold t :: tl -> Bold(set_default_lang lang t) :: set_default_lang lang tl
+  | Strike t :: tl -> Strike(set_default_lang lang t) :: set_default_lang lang tl
   | Ul t :: tl -> Ul(List.map (set_default_lang lang) t)
                  :: set_default_lang lang tl
   | Ol t :: tl -> Ol(List.map (set_default_lang lang) t)
