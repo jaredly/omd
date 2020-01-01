@@ -14,6 +14,7 @@ val default_language : string ref
     by default it is the empty string *)
 
 val html_of_md :
+  ?ids:(string, unit) Hashtbl.t ->
   ?override:(Omd_representation.element -> string option) ->
   ?pindent:bool ->
   ?nl2br:bool ->
@@ -42,6 +43,7 @@ let customized_to_html =
  *)
 
 val headers_of_md :
+  ?ids:(string, unit) Hashtbl.t ->
   ?remove_header_links:bool ->
   Omd_representation.t ->
   (Omd_representation.element * string * string) list
@@ -57,6 +59,7 @@ val headers_of_md :
  *)
 
 val html_and_headers_of_md :
+  ?ids:(string, unit) Hashtbl.t ->
   ?remove_header_links:bool ->
   ?override:(Omd_representation.element -> string option) ->
   ?pindent:bool ->

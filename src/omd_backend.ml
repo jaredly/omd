@@ -136,6 +136,7 @@ let render_header n b id content =
   Buffer.add_string b ">"
 
 let rec html_and_headers_of_md
+    ?(ids=Hashtbl.create 10)
     ?(remove_header_links=false)
     ?(override=(fun (e:element) -> (None:string option)))
     ?(pindent=false)
@@ -144,18 +145,20 @@ let rec html_and_headers_of_md
     md
   =
   let ids = object(this)
-    val mutable ids = StringSet.add "" StringSet.empty
+    (* val mutable ids = StringSet.add "" StringSet.empty *)
     method mangle id =
       let rec m i =
-        if StringSet.mem id ids then
-          let idx = if i > 0 then id^"_"^string_of_int i else id in
-          if StringSet.mem idx ids then
+        if Hashtbl.mem ids id then
+          let id_with_index = if i > 0 then id^"_"^string_of_int i else id in
+          if Hashtbl.mem ids id_with_index then
             m (i+1)
           else
-            (ids <- StringSet.add idx ids;
-             idx)
+            (Hashtbl.replace ids id_with_index ();
+            (* (ids <- StringSet.add id_with_index ids; *)
+             id_with_index)
         else
-          (ids <- StringSet.add id ids;
+          (Hashtbl.replace ids id ();
+          (* (ids <- StringSet.add id ids; *)
            id)
       in m 0
   end in
@@ -648,15 +651,16 @@ and string_of_attrs attrs =
   Buffer.contents b
 
 and html_of_md
+    ?ids
     ?(override=(fun (e:element) -> (None:string option)))
     ?(pindent=false)
     ?(nl2br=false)
     ?cs
     md
   =
-  fst (html_and_headers_of_md ~override ~pindent ~nl2br ?cs md)
-and headers_of_md ?remove_header_links md =
-  snd (html_and_headers_of_md ?remove_header_links md)
+  fst (html_and_headers_of_md ?ids ~override ~pindent ~nl2br ?cs md)
+and headers_of_md ?ids ?remove_header_links md =
+  snd (html_and_headers_of_md ?ids ?remove_header_links md)
 
 
 let rec sexpr_of_md md =

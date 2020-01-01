@@ -33,6 +33,7 @@ let of_string = of_input Omd_lexer.lex
 let of_bigarray = of_input Omd_lexer.lex_bigarray
 
 let to_html :
+  ?ids:(string, unit) Hashtbl.t ->
   ?override:(Omd_representation.element -> string option) ->
   ?pindent:bool ->
   ?nl2br:bool ->
